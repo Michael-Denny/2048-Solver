@@ -12,3 +12,5 @@ But it seems like this game is really hard to solve. For example, if you have on
 So I wanted to program my own 2048 game which will randomly select input until the game is lost or won.
 
 I plan to run this in a batch scenario to get a handle on how easy/hard it is to beat 2048 (at least with random movements).
+
+This is just for my own curiosity...
