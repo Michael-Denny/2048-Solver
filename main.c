@@ -17,7 +17,7 @@ struct Node {
 };
 
 //globals
-int GRID_SIZE = 4;
+int GRID_SIZE = 5;
 
 //protos
 void print_game(Node** array, WINDOW*);
@@ -27,6 +27,34 @@ void free_node_array(Node** &);
 int max(int[]);
 void execute_move(Node** &, int move, int &move_count);
 bool check_game_over(Node**);
+bool check_win(Node**);
+void reset_game(Node** &, int &move_count);
+
+
+void reset_game(Node** &array, int &move_count)
+{
+    move_count = 0;
+    for (int i = 0; i < GRID_SIZE; i++)
+	for (int j = 0; j < GRID_SIZE; j++)
+	    array[i][j].value = 0;
+
+    int randy = rand()%GRID_SIZE;
+    int randx = rand()%GRID_SIZE;
+    array[randy][randx].value = 2;
+}
+
+
+
+
+
+bool check_win(Node** array)
+{
+    for (int i = 0; i < GRID_SIZE; i++)
+	for (int j = 0; j < GRID_SIZE; j++)
+	    if (array[i][j].value >= 2048)
+		return true;
+    return false;
+}
 
 void execute_move(Node** &array, int move, int &move_count)
 {
@@ -173,9 +201,12 @@ bool check_game_over(Node** array)
     //if there are any empty space, game is not over
     for (int i = 0; i < GRID_SIZE; i++)
 	for (int j = 0; j < GRID_SIZE; j++)
+	{
 	    if (array[i][j].value == 0)
 		return false;
-
+	    else if (array[i][j].value >= 2048)
+		return true;
+        }
     //if any rows have adjacent pairs that match, game is not over
     for (int i = 0; i < GRID_SIZE; i++)
     {
@@ -252,8 +283,8 @@ void init_node_array(Node** &array)
 	    array[i][j].color = WHITE;
 	}
 
-    int random1 = rand() % 4;
-    int random2 = rand() % 4;
+    int random1 = rand() % GRID_SIZE;
+    int random2 = rand() % GRID_SIZE;
     array[random1][random2].value = 2;
 
 }
@@ -265,6 +296,7 @@ int main(int argc, char** argv)
     Node** node_array;
 
     bool game_over = false;
+    bool win = false;
     
     int row,
         col,
@@ -275,13 +307,15 @@ int main(int argc, char** argv)
 	game_area_height,
 	game_area_width,
 	move_count,
-	last_move;
+	last_move,
+	game_counter;
 
 
     const char* title = "2048 Tester - Michael Denny";
     const char* count_string = "Number of Moves: ";
     const char* last_move_string = "Last Move: ";
     move_count = 0;
+    game_counter = 0;
     last_move = NONE;
     game_area_height = (GRID_SIZE + 1) * 2 + 1;
     game_area_width = (GRID_SIZE + 1 ) * 5;
@@ -293,7 +327,7 @@ int main(int argc, char** argv)
     keypad(stdscr, TRUE); 
     getmaxyx(stdscr, row, col);
    
-    min_req_height = game_area_height + 6;
+    min_req_height = game_area_height + 7;
     min_req_width = game_area_width;
     if (min_req_width < strlen(title))
 	min_req_width = strlen(title);
@@ -324,38 +358,54 @@ int main(int argc, char** argv)
 
 
     int input;
-    while(!game_over)
+    while(!win)
     {
-	input = getch();
-	switch(input)
-	{
-	    case KEY_LEFT:
-	        last_move = LEFT;
-		break;
-	    case KEY_RIGHT:
-	        last_move = RIGHT;
-		break;
-	    case KEY_UP:
-	        last_move = UP;
-		break;
-	    case KEY_DOWN:
-	        last_move = DOWN;
-		break;
-	    default:
-	    	last_move = NONE;
-		break;
-	}
+        while(!game_over)
+        {
+	    /*
+	    input = getch();
+	    switch(input)
+	    {
+		case KEY_LEFT:
+		    last_move = LEFT;
+		    break;
+		case KEY_RIGHT:
+		    last_move = RIGHT;
+		    break;
+		case KEY_UP:
+		    last_move = UP;
+		    break;
+		case KEY_DOWN:
+		    last_move = DOWN;
+		    break;
+		default:
+		    last_move = NONE;
+		    break;
+	    }
+	    */
+	    last_move = rand()%4;
 
-	if (last_move != NONE);
-	execute_move(node_array, last_move, move_count);
-	game_over = check_game_over(node_array);
+	    if (last_move != NONE);
+	    execute_move(node_array, last_move, move_count);
+	    game_over = check_game_over(node_array);
 
-        print_game(node_array, game_area);
-        mvprintw(3 + game_area_height + 1, (col - (strlen(count_string) + 2))/2, "%s%d", count_string, move_count);
+	    print_game(node_array, game_area);
+	    wrefresh(game_area);
+	    mvprintw(3 + game_area_height + 1, (col - (strlen(count_string) + 2))/2, "%s%d", count_string, move_count);
+	    refresh();
+	    mvprintw(3 + game_area_height + 2, (col - (strlen(last_move_string) + 4))/2, "%s%s", last_move_string, direction_string[last_move]);
+	    refresh();
+            }
+
+        game_counter++;
+        win = check_win(node_array);
+        mvprintw(3 + game_area_height + 3, (col - (strlen("Games Played: "))+1)/2, "%s%d", "Games Played ", game_counter);
         refresh();
-        mvprintw(3 + game_area_height + 2, (col - (strlen(last_move_string) + 4))/2, "%s%s", last_move_string, direction_string[last_move]);
-        refresh();
+        if(!win)
+	    reset_game(node_array, move_count);
+	game_over = false;
     }
+    getch(); 
     endwin();
     free_node_array(node_array);
     return 0;
