@@ -93,11 +93,11 @@ int main(int argc, char** argv)
    
 
     //If terminal window is too small, print error and gracefully close/exit
-    if (row < min_req_height || col < min_req_width)
+    if (terminal_height < min_req_height || terminal_width < min_req_width)
     {
 	endwin();
 	printf("Terminal window is too small.\n");
-	printf("Grid size is %d.\n", grid_size):
+	printf("Grid size is %d.\n", grid_size);
 	printf("Need %d rows, have %d rows.\n", min_req_height, terminal_height);
 	printf("Need %d cols, have %d cols.\n", min_req_width, terminal_width);
 	printf("Exiting...\n");
@@ -106,7 +106,7 @@ int main(int argc, char** argv)
   
   
     //Print title 
-    mvprintw(1, (col - strlen(title))/2, title);
+    mvprintw(1, (terminal_width - strlen(title))/2, title);
     refresh();
     
     //Create ncurses window to display the game
@@ -114,7 +114,7 @@ int main(int argc, char** argv)
     			my_game_area_height,		//Window height
     			my_game_area_width,		//Window width
 			3,				//Window x coord
-			(col - my_game_area_width)/2);  //Window y coord
+			(terminal_width - my_game_area_width)/2);  //Window y coord
 
     //Define game_area border
     wborder(game_area, '|', '|', '-', '-', '+', '+', '+', '+'); 
@@ -123,7 +123,7 @@ int main(int argc, char** argv)
     //Print the game
     my_game->print_game_board(game_area);
     //Print move count
-    mvprintw(3 + my_game_area_height + 1, (col - (strlen(count_string) + 2))/2, "%s%d", count_string, my_game->get_move_count());
+    mvprintw(3 + my_game_area_height + 1, (terminal_width - (strlen(count_string) + 2))/2, "%s%d", count_string, my_game->get_move_count());
     refresh();
 
 
@@ -132,7 +132,7 @@ int main(int argc, char** argv)
     {
         while(!my_game->is_game_over())
         {
-	    /*
+	   /* 
 	    input = getch();
 	    switch(input)
 	    {
@@ -152,18 +152,20 @@ int main(int argc, char** argv)
 		    last_move = NONE;
 		    break;
 	    }
-	    */
+	    
+	   my_game->execute_move(last_move);
+	   */
 
 	    my_game->execute_random_move();
 
 	    my_game->print_game_board(game_area);
 	    wrefresh(game_area);
-	    mvprintw(3 + my_game_area_height + 1, (col - (strlen(count_string) + 2))/2, "%s%d", count_string, my_game->get_move_count());
+	    mvprintw(3 + my_game_area_height + 1, (terminal_width - (strlen(count_string) + 2))/2, "%s%d", count_string, my_game->get_move_count());
 	    refresh();
             }
 
         my_game_counter++;
-        mvprintw(3 + my_game_area_height + 3, (col - (strlen("Games Played: "))+1)/2, "%s%d", "Games Played ", my_game_counter);
+        mvprintw(3 + my_game_area_height + 3, (terminal_width - (strlen("Games Played: "))+1)/2, "%s%d", "Games Played ", my_game_counter);
         refresh();
         if(!my_game->is_game_won())
 	    my_game->reset_game();
