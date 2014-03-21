@@ -154,7 +154,7 @@ void Game::execute_move(int move)
 		index++;		    
 	    }
 	   
-	   
+	    remove_zero_entries(vector);
 	    //perform the move for this column
 	    index = 0;	    
 	    while (index < vector.size() - 1)
