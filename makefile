@@ -1,3 +1,3 @@
 all:
-	g++ -o 2048 main.c -lncurses
+	g++ -o 2048 main.cpp Game.cpp -lncurses
 
