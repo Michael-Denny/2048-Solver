@@ -44,19 +44,19 @@ int main(int argc, char** argv)
 	my_game_area_height,    //Size of playing area: depends on grid size
 	my_game_area_width,	//Size of playing area: depends on grid size
 	move_count,		//Track number of moves for current game
-	last_move,              //Last user selected input *implemented and disabled*	
+	move_input,              //Last user selected input *implemented and disabled*	
 	my_game_counter;	//Track number of games played
 
 
     //Some static strings used for the program
     const char* title = "2048 Tester - Michael Denny";
     const char* count_string = "Number of Moves: ";
-    const char* last_move_string = "Last Move: ";
+    const char* move_input_string = "Last Move: ";
    
     //Set up some variables
     move_count = 0;
     my_game_counter = 0;
-    last_move = NONE;
+    move_input = NONE;
 
    /*
     * Cacluate game area dimensions:
@@ -127,52 +127,86 @@ int main(int argc, char** argv)
     refresh();
 
 
-    int input;
+    int input;	//holds input
+
+    //Keep playing games until a game has been won
     while(!my_game->is_game_won())
     {
+
+	//Keeping getting/creating input until the current game is over
         while(!my_game->is_game_over())
         {
+	  /*
+	   * I currently have the program set up to run with randomly
+	   * generated input. However, the code to allow for user input
+	   * is right below this comment block. Just uncomment the next
+	   * block (and comment out the line that generates random input
+	   * that follows) in order to accept user input to play the game.
+	   * If you do this, the program becomes a CLI clone of 2048.
+	   */
+
 	   /* 
-	    input = getch();
-	    switch(input)
+	    input = getch();  	//get input from the user
+	    switch(input)	//switch on user input
 	    {
+		//Note that KEY_* keywords are defined by
+		//  ncurses.h and correspond to getch() inputs.
+		//LEFT,RIGHT,UP,DOWN is an enum defined in Game.h
+
 		case KEY_LEFT:
-		    last_move = LEFT;
+		    move_input = LEFT;
 		    break;
 		case KEY_RIGHT:
-		    last_move = RIGHT;
+		    move_input = RIGHT;
 		    break;
 		case KEY_UP:
-		    last_move = UP;
+		    move_input = UP;
 		    break;
 		case KEY_DOWN:
-		    last_move = DOWN;
+		    move_input = DOWN;
 		    break;
 		default:
-		    last_move = NONE;
+		    move_input = NONE;
 		    break;
 	    }
 	    
-	   my_game->execute_move(last_move);
+	   my_game->execute_move(move_input);
 	   */
 
+	    //Comment out the following line if you plan to use
+	    //  User input for moves.
 	    my_game->execute_random_move();
 
+	    //print out the game board (since we just updated with a new move)
 	    my_game->print_game_board(game_area);
 	    wrefresh(game_area);
+
+	    //print out the move counter
 	    mvprintw(3 + my_game_area_height + 1, (terminal_width - (strlen(count_string) + 2))/2, "%s%d", count_string, my_game->get_move_count());
 	    refresh();
-            }
 
+            } //end single game loop
+	//previous game has just finished (win or lose)
+
+	//increment games played counter
         my_game_counter++;
+
+	//Print updated games played counter
         mvprintw(3 + my_game_area_height + 3, (terminal_width - (strlen("Games Played: "))+1)/2, "%s%d", "Games Played ", my_game_counter);
         refresh();
+
+	//Check the result of the previous game. If we lost, we
+	//  reset the game in preparation of playing again.
         if(!my_game->is_game_won())
 	    my_game->reset_game();
-    }
+    
+    } //End of all games loop.
+    //The previous game was a win. So we stopped playing.
+
+    //Pause so the user can see the final state of the gameboard.
     getch(); 
+
+    //Destroy ncurses, restoring terminal
     endwin();
     return 0;
 }
-
-
