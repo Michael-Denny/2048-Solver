@@ -1,4 +1,4 @@
-##2048 Sovler
+#2048 Solver
 
 Feburary 2014
 
@@ -15,7 +15,7 @@ I plan to run this in a batch scenario to get a handle on how easy/hard it is to
 
 This is just for my own curiosity...
 
-#Results (using random input):
+##Results (using random input):
 * 6x6 grids are solved every time.
 * 5x5 grids are solved about every 12th game. So 1/12 of the time.
 * 4x4 grids (the actual game) are unsolvable with random input. I have ran over 15 million games with winning a single one. :(
