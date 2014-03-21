@@ -18,4 +18,4 @@ This is just for my own curiosity...
 ##Results (using random input):
 * 6x6 grids are solved every time.
 * 5x5 grids are solved about every 12th game. So 1/12 of the time.
-* 4x4 grids (the actual game) are unsolvable with random input. I have ran over 15 million games with winning a single one. :(
+* 4x4 grids (the actual game) are unsolvable with random input. I have ran over 15 million games without winning a single one. :(
