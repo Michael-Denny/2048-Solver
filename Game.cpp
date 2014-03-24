@@ -137,7 +137,7 @@ bool Game::is_game_over()
     for (int row = 0; row < grid_size; row++)  //for each row...
     {
 	//initialize previous value with the first element in the row
-        int previous = game_board[row][0];
+        int previous = game_board[row][0].value;
 
 	//Iterate through the rest of the row, comparing current value with
 	//  the previous value. Return true if we have a match. Update
@@ -155,7 +155,7 @@ bool Game::is_game_over()
     for (int column = 0; column < grid_size; column++)  //for each column...
     {
 	//initialize previous value with the first element in the row
-        previous = game_board[0][column];
+        int previous = game_board[0][column].value;
 
 	//Iterate through the rest of the row, comparing current value with
 	//  the previous value. Return true if we have a match. Update
@@ -184,7 +184,14 @@ void Game::execute_random_move()
 }
 
 
-
+//Execute move
+//  This is the heart of the Game, executing a move.
+//  This function accepts 4 different moves (as ints, see the move enum)
+//  If the move is valid, the move is executed and another random empty
+//    tile is chosen to continue the game (add a new "2" tile). Also, the
+//    move counter is updated.
+//  If the move is not valid, nothing is done and the move counter is not
+//    incremented
 void Game::execute_move(int move)
 {
     //we need to check and track if we are preforming a legal move.
@@ -197,27 +204,48 @@ void Game::execute_move(int move)
     //temporary vector to hold values from a single row or column
     std::vector<int> vector;
     
-    //move up or down
+
+    //Move logic:
+    //  Lets say we are moving Left:
+    //  Now lets start with the first row:
+    //  Pull each value of the row out, and store into a vector.
+    //  The move will collapse the values, meaning that all tiles
+    //    that are empty will disapper (or be moved to the end, however
+    //    you want to think about it)
+    //  The move will also coalesce adjacent values if they are identical.
+    //  So...
+    //    1.) For each row, pull values out into a vector
+    //    2.) Remove all the zeros from that vector
+    //    3.) Traverse vector, coalescing same values into a single tile (of 2* value)
+    //    4.) Pad the end of the vector with zeros, so it is the correct size for a row
+    //    5.) Write out of the values of the vector back into the row
+    //
+    //  For a move to the right, we just invert the vector before and after we modify it.
+    //
+    //  For up and down moves, we use columns instead of rows (and do inversions on down)
+
+
+    //Move up or down
     if (move == UP || move == DOWN)
     {
-	//extract each row
+	//Extract each column into a vector
 	for (int column = 0; column < grid_size; column++)
 	{
-	    for (int row = 0; row < grid_size; row++)
-	        vector.push_back(game_board[row][column].value);
+	    for (int column_element = 0; column_element < grid_size; column_element++)
+	        vector.push_back(game_board[column_element][column].value);  //extract tile values
 	    
-	    //if moving down, invert the vector
+	    //If moving down, invert the vector
 	    if (move == DOWN)
 	        invert_vector(vector);
 
+	    
+	    //Iterate through vector to Check if a valid move is being made
 	    int index = 0;
 	    bool found_empty_space = false;
-	    
-	    //check if a move is being made
-	    //  move is made if we find an empty space followed
-	    //  by a non empty space.
 	    while (index < vector.size())
 	    {
+		//  Move is made if we find an empty space followed
+		//    by a non empty space.
 		if (!found_empty_space && vector[index] == 0)
 		    found_empty_space = !found_empty_space;
 
@@ -229,27 +257,35 @@ void Game::execute_move(int move)
 		index++;		    
 	    }
 	   
+	    //Remove the empty tiles from the vector
 	    remove_zero_entries(vector);
-	    //perform the move for this column
+	    
+	    //Perform the move for this column by coalescing adjacent identical
+	    //  values
 	    index = 0;	    
 	    while (index < vector.size() - 1)
 	    {
-	        if (vector[index] == vector[index + 1])
+	        if (vector[index] == vector[index + 1])  	//if the next value matchs this value
 		{
-		    vector[index] *= 2;
-		    vector.erase(vector.begin() + index + 1);
+		    vector[index] *= 2;				//double this value
+		    vector.erase(vector.begin() + index + 1);   //remove the next value
 		}
 		index++;
 	    }
 	   
+	    //After the move has been made, pad the vector with empty tiles
+	    //  to match the length of the column
 	    pad_with_zero(vector);
 
+	    //If moving down, re-invert the vector
 	    if (move == DOWN)
 	        invert_vector(vector);
 
-	    for (int row = 0; row < grid_size; row++)
-		    game_board[row][column].value = vector[row];
+	    //write the values in the vector back into the column they originated from
+	    for (int element = 0; element < grid_size; element++)
+		    game_board[element][column].value = vector[element];
 	    
+	    //clean up before we start the next column
 	    vector.clear();
 	}
     }
@@ -257,55 +293,76 @@ void Game::execute_move(int move)
 
     else //move == right or left
     {
+	//Extract values of each row out into a vector (one row at a time)
 	for (int row = 0; row < grid_size; row++)
 	{
-	    for (int column = 0; column < grid_size; column++)
-	        vector.push_back(game_board[row][column].value);
+	    for (int row_element = 0; row_element < grid_size; row_element++)
+	        vector.push_back(game_board[row][row_element].value);
+
+	    //If we are moving right, invert the vector before we begin
 	    if (move == RIGHT)
 	        invert_vector(vector);
 		 
+	   
+	    //Iterate through the vector and check if a valid move is being made 
 	    int index = 0;
 	    bool found_empty_space = false;
-
-            //check if a move is being made
 	    while (index < vector.size())
 	    {
+		//  Move is made if we find an empty space followed
+		//    by a non empty space.
 		if (!found_empty_space && vector[index] == 0)
 		    found_empty_space = !found_empty_space;
+
 		else if (found_empty_space && vector[index] != 0)
 		{
 		    legal_move = true;
 		    break;
 		}
+
 		index++;		    
 	    }
 
+
+	    //Remove empty tiles from the vector
 	    remove_zero_entries(vector);
 	     
-	    index = 0;	    
+	 	
 	   
+	    //Perform the move for this column by coalescing adjacent identical
+	    //  values
+	    index = 0;	    
 	    while (index < vector.size() - 1)
 	    {
-	        if (vector[index] == vector[index + 1])
+	        if (vector[index] == vector[index + 1])		//If this value equals the next value
 		{
-		    vector[index] *= 2;
-		    vector.erase(vector.begin() + index + 1);
+		    vector[index] *= 2;				//Double this value
+		    vector.erase(vector.begin() + index + 1);	//delete next value
 		}
 		index++;
 	    }
 	    
+	    //Pad the vector with empty tiles in order to make the vector the same
+	    //  size as a row
 	    pad_with_zero(vector);
 	    	    
+
+	    //If we are moving right, re-invert the vector
 	    if (move == RIGHT)
 		invert_vector(vector);
 
-	    for (int column = 0; column < grid_size; column++)
-		    game_board[row][column].value = vector[column];
+	    //Write the values of the vector back out into the row the values originated from
+	    for (int element = 0; element < grid_size; element++)
+		    game_board[row][element].value = vector[element];
 	    
+	    //Clean up vector to prepare for use with the next row
 	    vector.clear();
 	}
     }
 
+
+    //If we determined that a valid, legal move was preformed, add a new tile
+    //  to continue the game, and increment the move counter.
     if(legal_move)
     {
         add_new_tile();
@@ -313,14 +370,24 @@ void Game::execute_move(int move)
     }
 }
 
+
+//Add new tile
+//  After every move, a random empty tile is chosen and its value is
+//  set at "2"
 void Game::add_new_tile() {
         
+	//Locations of empty tiles are stored in a vector of <int,int> pairs
 	std::vector<std::pair<int,int> > blank_tiles;
+
+	//Iterate through each tile, storing the locations of any empty tiles we find
         for (int row = 0; row < grid_size; row++)
 	    for (int column = 0; column < grid_size; column++)
-	        if (game_board[row][column].value == 0)
-	   	    blank_tiles.push_back(std::make_pair(row, column));
+	        if (game_board[row][column].value == 0)			//If empty
+	   	    blank_tiles.push_back(std::make_pair(row, column)); //Save location
         
+
+	//Pick a random entry from the vector. Update the blank tile at that loation by
+	//  setting its value at "2"
 	if (blank_tiles.size() > 0)
         {
             int random = rand() % blank_tiles.size();
@@ -328,6 +395,9 @@ void Game::add_new_tile() {
         }
 }
 
+
+
+//Remove zero entries from a given vector (by reference)
 void Game::remove_zero_entries(std::vector<int> &vector)
 {
     int index = 0;
@@ -340,24 +410,35 @@ void Game::remove_zero_entries(std::vector<int> &vector)
     }
 }
 
+
+//Pad a give vector (by reference) with zeros until it is the same size
+//  as this.grid_size
 void Game::pad_with_zero(std::vector<int> &vector)
 {
     while (vector.size() < grid_size)
 	vector.push_back(0);
 }
 
+
+//Invert a given vector (by reference)
 void Game::invert_vector(std::vector<int> &vector)
 {
     std::reverse(vector.begin(), vector.end());
 }
 
+
+//Print the game board to a given ncurses window (by reference)
 void Game::print_game_board(WINDOW* window)
 {
+    //For each tile, print the tile to the ncurses window
     for (int row = 0; row < grid_size; row++)
 	for (int column = 0; column < grid_size; column++)
 	    print_tile(window, game_board[row][column], 2 + (row * 2), 3 + (column * 5));
 }
 
+
+//Print a specific tile to a given ncurses window (by reference)
+//  Tile is printed to window location (x_coord,y_coord)
 void Game::print_tile(WINDOW* window, Tile tile, int x_coord, int y_coord)
 {
     if (tile.value == 0)
