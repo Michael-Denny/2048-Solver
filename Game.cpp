@@ -27,7 +27,7 @@ Game::Game(int input_grid_size) {
     if (input_grid_size <= 1)
 	input_grid_size = 4;  //fallback to default if needed
 
-    this->grid_size = grid_size;
+    this->grid_size = input_grid_size;
     this->initialize();
     move_counter = 0;
 }
@@ -58,7 +58,6 @@ void Game::initialize() {
 	    game_board[row][column].value = 0;
 	    game_board[row][column].color = 0;
 	}
-
     //The game board has been created and is empty. We need to
     //  populate the first non-empty Tile with '2'. We choose
     //  a random Tile to start off the game.

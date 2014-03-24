@@ -145,14 +145,14 @@ int main(int argc, char** argv)
 	   * If you do this, the program becomes a CLI clone of 2048.
 	   */
 
-	   /* 
+	    /*
 	    input = getch();  	//get input from the user
 	    switch(input)	//switch on user input
 	    {
 		//Note that KEY_* keywords are defined by
 		//  ncurses.h and correspond to getch() inputs.
 		//LEFT,RIGHT,UP,DOWN is an enum defined in Game.h
-
+		
 		case KEY_LEFT:
 		    move_input = LEFT;
 		    break;
@@ -177,7 +177,7 @@ int main(int argc, char** argv)
 	    //  User input for moves.
 	    my_game->execute_random_move();
 
-	    //print out the game board (since we just updated with a new move)
+	    // print out the game board (since we just updated with a new move)
 	    my_game->print_game_board(game_area);
 	    wrefresh(game_area);
 
