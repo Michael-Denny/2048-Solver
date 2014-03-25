@@ -145,7 +145,7 @@ int main(int argc, char** argv)
 	   * If you do this, the program becomes a CLI clone of 2048.
 	   */
 
-	    /*
+	    
 	    input = getch();  	//get input from the user
 	    switch(input)	//switch on user input
 	    {
@@ -154,15 +154,23 @@ int main(int argc, char** argv)
 		//LEFT,RIGHT,UP,DOWN is an enum defined in Game.h
 		
 		case KEY_LEFT:
+		case 'a':
+		case 'A':
 		    move_input = LEFT;
 		    break;
 		case KEY_RIGHT:
+		case 'd':
+		case 'D':
 		    move_input = RIGHT;
 		    break;
 		case KEY_UP:
+		case 'w':
+		case 'W':
 		    move_input = UP;
 		    break;
 		case KEY_DOWN:
+		case 's':
+		case 'S':
 		    move_input = DOWN;
 		    break;
 		default:
@@ -171,11 +179,11 @@ int main(int argc, char** argv)
 	    }
 	    
 	   my_game->execute_move(move_input);
-	   */
+	   
 
 	    //Comment out the following line if you plan to use
 	    //  User input for moves.
-	    my_game->execute_random_move();
+	   // my_game->execute_random_move();
 
 	    // print out the game board (since we just updated with a new move)
 	    my_game->print_game_board(game_area);
