@@ -264,10 +264,16 @@ void Game::execute_move(int move)
 	    index = 0;	    
 	    while (index < vector.size() - 1)
 	    {
+		// The other case for a valid move would
+		//   be two adjacent tiles having the
+		//   same value (after removing all the
+		//   empty tiles).
+
 	        if (vector[index] == vector[index + 1])  	//if the next value matchs this value
 		{
 		    vector[index] *= 2;				//double this value
 		    vector.erase(vector.begin() + index + 1);   //remove the next value
+		    legal_move = true;
 		}
 		index++;
 	    }
@@ -333,10 +339,15 @@ void Game::execute_move(int move)
 	    index = 0;	    
 	    while (index < vector.size() - 1)
 	    {
+		// The other case for a valid move would
+		//   be two adjacent tiles having the
+		//   same value (after removing all the
+		//   empty tiles).
 	        if (vector[index] == vector[index + 1])		//If this value equals the next value
 		{
 		    vector[index] *= 2;				//Double this value
 		    vector.erase(vector.begin() + index + 1);	//delete next value
+		    legal_move = true;
 		}
 		index++;
 	    }
